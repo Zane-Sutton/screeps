@@ -28,15 +28,13 @@ module.exports.loop = function () {
   sources = Game.spawns['Nexus'].room.find(FIND_SOURCES_ACTIVE);
 
   for(var source in sources) {
-      //create a multidimensional array for each source
       nodes[source] = [];
       nodes[source][0] = sources[source]; //id
       nodes[source][1] = sources[source].pos.x; //x position
       nodes[source][2] = sources[source].pos.y; //x position
-      nodes[source][3] = 0; //current harvesters
+      nodes[source][3] = []; //assigned harvesters
       nodes[source][4] = 0; //max harvesters
 
-      //check surrounding tile blocks of every source
       var terrain = [];
       terrain[0] = Game.map.getTerrainAt(nodes[source][1],(nodes[source][2]+1),Game.spawns['Nexus'].room.name); //n
       terrain[1] = Game.map.getTerrainAt(nodes[source][1],(nodes[source][2]-1),Game.spawns['Nexus'].room.name); //s
@@ -47,40 +45,105 @@ module.exports.loop = function () {
       terrain[6] = Game.map.getTerrainAt(nodes[source][1]-1,(nodes[source][2]+1),Game.spawns['Nexus'].room.name); //nw
       terrain[7] = Game.map.getTerrainAt(nodes[source][1]-1,(nodes[source][2]-1),Game.spawns['Nexus'].room.name); //sw
 
-      //allocate the amount of slots to a source based on the tiles without a wall
       for(var tile in terrain) {
         if(terrain[tile]!="wall")
         {
             nodes[source][4]++;
         }
       }
+
+      //console.log(nodes[source]);
   }
 
-  //Keep making more harvesters as a priority until the defined max
+  for(var i in Memory.creeps) {
+    if(!Game.creeps[i]) {
+        delete Memory.creeps[i];
+    }
+  }
+
+
+
   if(_.size(harvesters) < max_Harverster_Population){
     var prefix = 'harvester-';
-    var suffix = (_.size(harvesters) + 1);
-    var name = prefix.concat(suffix);
-    Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'harvester'}});
+    var suffix = 0;
+    var name;
+
+    while(true)
+    {
+        name = prefix.concat(suffix);
+        if (Game.creeps[name] != undefined)
+        {
+            suffix += 1;
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    var creationassignednode;
+
+
+    for(var i in nodes)
+    {
+        console.log(_.size(nodes[i][3]) + "|" + nodes[i][4]);
+        if(_.size(nodes[i][3]) < nodes[i][4])
+        {
+            creationassignednode = nodes[i][0];
+            nodes[i][3].push(name);
+            break;
+        }
+    }
+
+    console.log("Creation assigned node:" + creationassignednode);
+
+
+
+    Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'harvester', assignednode: creationassignednode}});
+
+
   }
   else if(_.size(harvesters) == max_Harverster_Population){
-    //when reached max, make enhancers
     if(_.size(enhancers) < max_Enhancer_Population){
       var prefix = 'enhancer-';
       var suffix = (_.size(enhancers) + 1);
-      var name = prefix.concat(suffix);
+      var name;
+    while(true)
+    {
+        name = prefix.concat(suffix);
+        if (Game.creeps[name] != undefined)
+        {
+            suffix += 1;
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+
+
+
       Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'enhancer'}});
     }
   }
 
-  //run ai scripts
+
+
+
+
   for(var name in Game.creeps) {
         var creep = Game.creeps[name];
         if(creep.memory.role == 'harvester') {
-            role_Harvester.run(creep);
+            role_Harvester.run(creep, nodes);
         }
         if(creep.memory.role == 'enhancer') {
             role_Enhancer.run(creep);
         }
     }
+
+    console.log(nodes);
+
 }
