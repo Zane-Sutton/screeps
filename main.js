@@ -17,21 +17,28 @@
     var engineers = [];
     var enhancers = [];
     var harvesters = [];
+    var sources = [];
 
+    creeps = _.filter(Game.creeps);
+    engineers = _.filter(Game.creeps, {memory:  {role: 'engineer'}});
+    enhancers = _.filter(Game.creeps, {memory:  {role: 'enhancer'}});
     harvesters = _.filter(Game.creeps, {memory:  {role: 'harvester'}});
-
-    console.log(_.size(harvesters));
-    console.log(max_Harverster_Population);
+    sources = _.filter(Game.sources);
 
     if(_.size(harvesters) < max_Harverster_Population){
       var prefix = 'harvester-';
       var suffix = (_.size(harvesters) + 1);
       var name = prefix.concat(suffix);
-      Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, CARRY, MOVE] , name  , {memory: {role: 'harvester'}});
+      Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'harvester'}});
     }
-    else if(_.size(harvesters) < max_Harverster_Population){
-
-    )
+    else if(_.size(harvesters) == max_Harverster_Population){
+      if(_.size(enhancers) == max_Enhancer_Population){
+        var prefix = 'enhancer-';
+        var suffix = (_.size(enhancer) + 1);
+        var name = prefix.concat(suffix);
+        Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'enhancer'}});
+      }
+    }
 
     for(var name in Game.creeps) {
           var creep = Game.creeps[name];

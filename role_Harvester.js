@@ -11,5 +11,5 @@ module.exports = {
                 creep.moveTo(Game.spawns['Nexus']);
             }
         }
-    }    
+    }
 };
