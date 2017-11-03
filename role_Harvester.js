@@ -1,53 +1,112 @@
-module.exports = {
-  run: function(creep, nodes) {
+module.exports =
+{
+  run: function(creep, nodes)
+  {
+      if (creep.memory.fleeing == false)
+      {
+          var checksource = [];
+          var sources = Game.getObjectById(creep.memory.assignednode["id"]);
 
-        var safe = true;
-        var checksource = [];
+          //see if there are any enemies near the source
+          checksource[0] = (creep.memory.assignednode["pos"]["y"] - 5);//top
+          checksource[1] = (creep.memory.assignednode["pos"]["y"] + 5);//bottom
+          checksource[2] = (creep.memory.assignednode["pos"]["x"] - 5);//left
+          checksource[3] = (creep.memory.assignednode["pos"]["x"] + 5);//right
+          for(var i in checksource)
+          {
+              if (checksource[i] < 0)
+              {
+                  checksource[i] = 0;
+              }
+              if (checksource[i] > 49)
+              {
+                checksource[i] = 49;
+              }
+          }
+          var creepsInArea = creep.room.lookForAtArea(LOOK_CREEPS, checksource[0], checksource[2], checksource[1], checksource[3], true);
+          for(var thiscreep in creepsInArea)
+          {
+              var currentcreep = creepsInArea[thiscreep].creep
 
-        var sources = Game.getObjectById(creep.memory.assignednode["id"]);
-
-        //see if there are any enemies near the source
-
-        checksource[0] = (creep.memory.assignednode["pos"]["y"] + 10);//top
-        checksource[1] = (creep.memory.assignednode["pos"]["y"] - 10);//bottom
-        checksource[2] = (creep.memory.assignednode["pos"]["x"] + 10);//left
-        checksource[3] = (creep.memory.assignednode["pos"]["x"] - 10);//right
-
-        console.log("T:" + checksource[0] + ", B:" + checksource[1] + " ,L:" + checksource[2] + " ,R:" + checksource[3] )
-        console.log(creep.room.lookForAtArea(LOOK_CREEPS, checksource[0], checksource[2], checksource[1], checksource[3]))
-        /*
-        var creepsInArea = creep.room.lookForAtArea(LOOK_CREEPS, checksource[0], checksource[2], checksource[1], checksource[3], true);
-        var find_Enemy = false;
-        for(creeps in creepsInArea)
+              if (currentcreep.my == false)
+              {
+                  console.log("Found enemy: " + currentcreep + "," + currentcreep.my);
+                  creep.memory.fleeing = true;
+                  break;
+              }
+          }
+          if(creep.carry.energy < creep.carryCapacity)
+          {
+              if(creep.harvest(sources) == ERR_NOT_IN_RANGE)
+              {
+                  creep.moveTo(sources);
+              }
+          }
+          else
+          {
+              if(creep.transfer(Game.spawns['Nexus'], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+              {
+                  creep.moveTo(Game.spawns['Nexus']);
+              }
+          }
+      }
+      else if (creep.memory.fleeing == true)
+      {
+        creep.moveTo(Game.spawns['Nexus']);
+        creep.memory.assignednode = undefined;
+        console.log(creep.name + " is looking for a node to join");
+        for(var node in nodes)
         {
-            var currentcreep = creepsInArea[creep]
-            if currentcreep.my == "false"
-            {
-                find_Enemy = true;
-            }
+                    for(var newnode in nodes)
+                    {
+                        if(_.size(nodes[newnode][3]) >= (nodes[newnode][4]))
+                        {
+                            //console.log("Found a new node(" + nodes[newnode][0] + "), but it's full! (" + _.size(nodes[newnode][3]) + "/" + (nodes[newnode][4]) + ")");
+                            continue;
+                        }
+                        var newchecksource = [];
+                        var newsources = Game.getObjectById(nodes[newnode][0]);
+                        newchecksource[0] = (nodes[newnode][2] - 5);//top
+                        newchecksource[1] = (nodes[newnode][2] + 5);//bottom
+                        newchecksource[2] = (nodes[newnode][1] - 5);//left
+                        newchecksource[3] = (nodes[newnode][1] + 5);//right
+                        for(var j in newchecksource)
+                        {
+                            if (newchecksource[j] < 0)
+                            {
+                                newchecksource[j] = 0;
+                            }
+                            if (newchecksource[j] > 49)
+                            {
+                                newchecksource[j] = 49;
+                            }
+                        }
+                        var newcreepsInArea = creep.room.lookForAtArea(LOOK_CREEPS, newchecksource[0], newchecksource[2], newchecksource[1], newchecksource[3], true);
+                        var newfind_Enemy = false;
+                        for(var newthiscreep in newcreepsInArea)
+                        {
+                            var newcurrentcreep = newcreepsInArea[newthiscreep].creep;
+                            if (newcurrentcreep.my == false)
+                            {
+                                newfind_Enemy = true;
+                                break;
+                            }
+                        }
+                        if(newfind_Enemy == true)
+                        {
+                            //console.log("Found a new node(" + nodes[newnode][0] + "), but there is any enemy nearby!");
+                            continue;
+                        }
+                        var indextodelete = nodes[node][3].indexOf(creep.name);
+                        nodes[node][3].splice(indextodelete, 1);
+
+                        console.log("reassigned to: " + nodes[newnode][3][0]);
+
+                        nodes[newnode][3].push(creep.name);
+                        creep.memory.assignednode = nodes[newnode][0];
+                        creep.memory.fleeing = false;
+                    }
         }
-
-        //if there is, try reassign the source
-
-        if(find_Enemy == true)
-        {
-
-        }
-
-        //else sit next to spawner until safe.
-
-         */
-        if(creep.carry.energy < creep.carryCapacity) {
-            if(creep.harvest(sources) == ERR_NOT_IN_RANGE)
-            {
-                creep.moveTo(sources);
-            }
-        }
-        else {
-            if(creep.transfer(Game.spawns['Nexus'], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
-            {
-                creep.moveTo(Game.spawns['Nexus']);
-            }
-        }
+      }
     }
 };

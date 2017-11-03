@@ -7,10 +7,10 @@ var role_Harvester = require('role_Harvester');
 var max_Harverster_Population = 10;
 
 //Combat Creeps
-var role_Vidar = require('role_Vidar.js'); //Melee
-var role_Artemis = require('role_Artemis.js'); //Ranged
-var role_Mystic = require('role_Mystic.js'); //Healer
-var role_Exarch = require('role_Exarch.js'); //Elite
+var role_Vidar = require('role_Vidar'); //Melee
+var role_Artemis = require('role_Artemis'); //Ranged
+var role_Mystic = require('role_Mystic'); //Healer
+var role_Exarch = require('role_Exarch'); //Elite
 
 
 var sources = [];
@@ -19,6 +19,13 @@ var nodes = [];
 sources = Game.spawns['Nexus'].room.find(FIND_SOURCES);
 
 for(var source in sources) {
+
+    for(var i in Memory.creeps) {
+      if(!Game.creeps[i]) {
+          delete Memory.creeps[i];
+      }
+    }
+
     nodes[source] = [];
     nodes[source][0] = sources[source]; //id
     nodes[source][1] = sources[source].pos.x; //x position
@@ -29,9 +36,15 @@ for(var source in sources) {
     for(var name in Game.creeps)
     {
       var creep = Game.creeps[name];
-      if(Game.getObjectById(creep.memory.assignednode["id"]) == nodes[source][0])
-      {
-        nodes[source][3].push(creep.name);
+
+      if(creep.memory.role == 'harvester') {
+          if(creep.memory.assignednode !== undefined)
+          {
+              if(Game.getObjectById(creep.memory.assignednode["id"]) == nodes[source][0] )
+              {
+                  nodes[source][3].push(creep.name);
+              }
+          }
       }
     }
 
@@ -69,51 +82,55 @@ module.exports.loop = function () {
 
 
 
-  for(var i in Memory.creeps) {
-    if(!Game.creeps[i]) {
-        delete Memory.creeps[i];
+
+
+  var fleeingcreeps = false;
+
+  for(var j in Game.creeps)
+  {
+    if(Game.creeps[j].memory.fleeing == true)
+    {
+        fleeingcreeps = true;
+        break;
     }
   }
+  console.log(fleeingcreeps);
 
 
+  if(_.size(harvesters) < max_Harverster_Population)
+  {
 
-  if(_.size(harvesters) < max_Harverster_Population){
-    var prefix = 'harvester-';
-    var suffix = 0;
-    var name;
+      if(fleeingcreeps == false)
+      {
 
-    while(true)
-    {
-        name = prefix.concat(suffix);
-        if (Game.creeps[name] != undefined)
-        {
-            suffix += 1;
-            continue;
+          var prefix = 'harvester-';
+          var suffix = 0;
+          var name;
+
+
+          while(true)
+          {
+              name = prefix.concat(suffix);
+              if (Game.creeps[name] != undefined)
+              {
+                  suffix += 1;
+                  continue;
+              }
+              else
+              {
+                  break;
+              }
+          }
+
+          Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'harvester', assignednode: undefined, fleeing: true}})
+
         }
-        else
-        {
-            break;
-        }
-    }
-
-    var creationassignednode;
-
-
-    for(var i in nodes)
-    {
-        if(_.size(nodes[i][3]) < nodes[i][4])
-        {
-            creationassignednode = nodes[i][0];
-            break;
-        }
-    }
-
-    Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'harvester', assignednode: creationassignednode}})
-
-
   }
-  else if(_.size(harvesters) == max_Harverster_Population){
-    if(_.size(enhancers) < max_Enhancer_Population){
+  else if(_.size(harvesters) >= max_Harverster_Population)
+  {
+
+      if(_.size(enhancers) < max_Enhancer_Population)
+      {
       var prefix = 'enhancer-';
       var suffix = (_.size(enhancers) + 1);
       var name;
@@ -132,6 +149,7 @@ module.exports.loop = function () {
     }
 
       Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'enhancer'}});
+
     }
   }
 
