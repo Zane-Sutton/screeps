@@ -9,8 +9,8 @@ var role_Artemis = require('role_Artemis'); //Ranged
 var role_Mystic = require('role_Mystic'); //Healer
 var role_Exarch = require('role_Exarch'); //Elite
 
-const MAX_ENGINEER_POPULATON = 2;
-const MAX_ENHANCER_POPULATION = 3;
+const MAX_ENGINEER_POPULATON = 3;
+const MAX_ENHANCER_POPULATION = 0;
 const MAX_HARVESTER_POPULATION = 10;
 
 const MIN_UPGRADERS = 1;
@@ -69,7 +69,7 @@ for(var source in sources)
         }
     }
 
-    nodes[source][4] += Math.round(Game.spawns["Nexus"].pos.getRangeTo(nodes[source][1], nodes[source][2])/10);
+    nodes[source][4] += Math.floor(Game.spawns["Nexus"].pos.getRangeTo(nodes[source][1], nodes[source][2])/10);
 
 }
 
@@ -78,6 +78,8 @@ var tasks = [];
 tasks[0] = []; //upgrade controller
 tasks[0][0] = Game.spawns['Nexus'].room.controller.id; //id of controller
 tasks[0][1] = []; //assigned upgraders
+tasks[1] = [];
+tasks[2] = [];
 
 for(var name in Game.creeps)
 {
@@ -95,7 +97,21 @@ for(var name in Game.creeps)
     }
 }
 
-tasks[1] = Game.spawns['Nexus'].room.find(FIND_MY_CONSTRUCTION_SITES); //build buildings
+var StructuresToBuild = Game.spawns['Nexus'].room.find(FIND_MY_CONSTRUCTION_SITES); //build
+for (var structure in StructuresToBuild)
+{
+    tasks[1].push(StructuresToBuild[structure]["id"]);
+}
+
+for(var task in tasks[1])
+{
+    var temp = tasks[1][task];
+    tasks[1][task] = [];
+    tasks[1][task][0] = temp;
+    tasks[1][task][1] = undefined;
+
+}
+
 for(var task in tasks[1])
 {
     for(var name in Game.creeps)
@@ -105,7 +121,7 @@ for(var task in tasks[1])
         {
             if(creep.memory.assignedstructure != undefined)
             {
-                console.log(creep.memory.assignednode)
+                //console.log(creep.memory.assignedstructure)
                 if(Game.getObjectById(creep.memory.assignedstructure["id"]) == tasks[1][task].id)
                 {
                     //tasks[1][task].push(creep.name);
@@ -115,19 +131,46 @@ for(var task in tasks[1])
     }
 }
 
-tasks[2] = Game.spawns['Nexus'].room.find(FIND_MY_STRUCTURES); //build buildings
- //repair
+var StructuresToRepair = Game.spawns['Nexus'].room.find(FIND_MY_STRUCTURES); //repair
+for (var structure in StructuresToRepair)
+{
+    if (StructuresToRepair[structure].hits < StructuresToRepair[structure].hitsMax)
+    {
+        tasks[2].push(StructuresToRepair[structure]["id"]);
+    }
+}
+
+
+for(var task in tasks[2])
+{
+    for(var name in Game.creeps)
+    {
+        var creep = Game.creeps[name];
+        if(creep.memory.role == 'engineer')
+        {
+            if(creep.memory.assignedstructure != undefined)
+            {
+                //console.log(creep.memory.assignedstructure)
+                if(Game.getObjectById(creep.memory.assignedstructure["id"]) == tasks[2][task].id)
+                {
+                    //tasks[2][task].push(creep.name);
+                }
+            }
+        }
+    }
+}
+
 
 
 module.exports.loop = function () {
-  /*
+
   for(var i in Memory.creeps)
   {
       if(!Game.creeps[i])
       {
           delete Memory.creeps[i];
       }
-  }*/
+  }
 
 
   var creeps = [];
@@ -222,7 +265,7 @@ module.exports.loop = function () {
                       break;
                   }
               }
-              Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'engineer', status: 'collecting', assignedstructure: undefined}});
+              Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'engineer', status: 'collecting', assignedstructure: undefined, assignedfunction: undefined, tasklist: tasks}});
           }
       }
   }
@@ -241,7 +284,9 @@ module.exports.loop = function () {
     }
 
 
-    console.log("Nodes: " + nodes);
-    console.log("Tasks: " + tasks);
+    //console.log("Nodes: " + nodes);
+    console.log("Upgrade: " + tasks[0]);
+    console.log("Build: " + tasks[1]);
+    console.log("Repair: " + tasks[2]);
 
 }

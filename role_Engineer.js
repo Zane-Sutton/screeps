@@ -1,5 +1,8 @@
 module.exports = {
   run: function(creep) {
+
+
+
         /*var priority = []
         priority[0] = "Spawn";
         priority[1] = "Terminal";
@@ -19,7 +22,6 @@ module.exports = {
 
         //console.log(creep.name + " is now assigned to build " + creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES));
 
-
         if (Game.getObjectById(creep.memory.assignedstructure) == undefined)
         {
             creep.memory.assignedstructure = undefined;
@@ -27,23 +29,57 @@ module.exports = {
 
         if (creep.memory.assignedstructure == undefined)
         {
-            var found = false;
+
             //Primary - Repair Buildings
-            /*var structuresToRepair = creep.room.find(FIND_MY_STRUCTURES);
+            var structuresToRepair = creep.room.find(FIND_MY_STRUCTURES);
             for(var structureToRepair in structuresToRepair)
             {
                 if(structuresToRepair[structureToRepair].hits < structuresToRepair[structureToRepair].hitsMax)
                 {
-                    found = true;
-                    creep.memory.assignedstructure = creep.room.getObjectById(structuresToRepair[structureToRepair].id);
-                    break;
+                    for(var task in tasks[2])
+                    {
+                        if(tasks[2][task][1] == undefined)
+                        {
+                            tasks[2][task][1].push(creep.id);
+                            creep.memory.assignedfunction = "repair";
+                            creep.memory.assignedstructure = creep.room.getObjectById(structuresToRepair[structureToRepair].id);
+                            break;
+                        }
+                    }
                 }
-            }*/
-            //Secondary - Construct Structures
-            if(found == false)
-            {
-                creep.memory.assignedstructure = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
             }
+              //Secondary - Construct Structures
+            var structuresToBuild = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
+            for(var structureToBuild in structuresToBuild)
+            {
+                for(var task in tasks[1])
+                {
+                    if(tasks[1][task][1] == undefined)
+                    {
+                        tasks[1][task][1].push(creep.id);
+                        creep.memory.assignedfunction = "build";
+                        creep.memory.assignedstructure = creep.room.getObjectById(structuresToBuild[structureToBuild].id);
+                        break;
+                    }
+                }
+            }
+
+            var structuresToUpgrade = creep.room.controller;
+            for(var structureToUpgrade in structuresToUpgrade)
+            {
+                for(var task in tasks[0)
+                {
+                    if(tasks[1][task][1] == undefined)
+                    {
+                        tasks[1][task][1].push(creep.id);
+                        creep.memory.assignedfunction = "upgrade";
+                        creep.memory.assignedstructure = creep.room.getObjectById(structuresToUpgrade[structureToUpgrade].id);
+                        break;
+                    }
+                }
+            }
+
+
         }
 
         if (creep.memory.assignedstructure != undefined)
