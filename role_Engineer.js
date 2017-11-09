@@ -41,14 +41,14 @@ module.exports = {
                         if(tasks[2][task][1] == undefined)
                         {
                             tasks[2][task][1].push(creep.id);
-                            creep.memory.assignedfunction = "repair";
+                            creep.memory.assignedtask = "repair";
                             creep.memory.assignedstructure = creep.room.getObjectById(structuresToRepair[structureToRepair].id);
                             break;
                         }
                     }
                 }
             }
-              //Secondary - Construct Structures
+            //Secondary - Construct Structures
             var structuresToBuild = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
             for(var structureToBuild in structuresToBuild)
             {
@@ -57,29 +57,16 @@ module.exports = {
                     if(tasks[1][task][1] == undefined)
                     {
                         tasks[1][task][1].push(creep.id);
-                        creep.memory.assignedfunction = "build";
-                        creep.memory.assignedstructure = creep.room.getObjectById(structuresToBuild[structureToBuild].id);
+                        creep.memory.assignedtask = "build";
+                        creep.memory.assignedstructure = creep.room.getObjectById(structuresToRepair[structureToRepair].id);
                         break;
                     }
                 }
             }
-
-            var structuresToUpgrade = creep.room.controller;
-            for(var structureToUpgrade in structuresToUpgrade)
-            {
-                for(var task in tasks[0)
-                {
-                    if(tasks[1][task][1] == undefined)
-                    {
-                        tasks[1][task][1].push(creep.id);
-                        creep.memory.assignedfunction = "upgrade";
-                        creep.memory.assignedstructure = creep.room.getObjectById(structuresToUpgrade[structureToUpgrade].id);
-                        break;
-                    }
-                }
-            }
-
-
+            //Tertiary - Upgrade Structures
+            tasks[0][1].push(creep.id);
+            creep.memory.assignedtask = "upgrade";
+            creep.memory.assignedstructure = Game.spawns['Nexus'].room.controller.id;
         }
 
         if (creep.memory.assignedstructure != undefined)
@@ -125,9 +112,19 @@ module.exports = {
               {
                   if(creep.carry.energy > 0)
                   {
-                      if(creep.build(Game.getObjectById(creep.memory.assignedstructure["id"])) == ERR_NOT_IN_RANGE)
+                      if(creep.memory.assignedtask == 'build')
                       {
-                          creep.moveTo(Game.getObjectById(creep.memory.assignedstructure["id"]));
+                          if(creep.build(Game.getObjectById(creep.memory.assignedstructure["id"])) == ERR_NOT_IN_RANGE)
+                          {
+                              creep.moveTo(Game.getObjectById(creep.memory.assignedstructure["id"]));
+                          }
+                      }
+                      else if (creep.memory.assignedtask == 'repair')
+                      {
+                          if(creep.repair(Game.getObjectById(creep.memory.assignedstructure["id"])) == ERR_NOT_IN_RANGE)
+                          {
+                              creep.moveTo(Game.getObjectById(creep.memory.assignedstructure["id"]));
+                          }
                       }
                   }
                   else if (creep.carry.energy == 0)

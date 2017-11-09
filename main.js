@@ -1,6 +1,5 @@
   //Civic Creeps
 var role_Engineer = require('role_Engineer');
-var role_Enhancer = require('role_Enhancer');
 var role_Harvester = require('role_Harvester');
 
 //Combat Creeps
@@ -9,9 +8,8 @@ var role_Artemis = require('role_Artemis'); //Ranged
 var role_Mystic = require('role_Mystic'); //Healer
 var role_Exarch = require('role_Exarch'); //Elite
 
-const MAX_ENGINEER_POPULATON = 3;
-const MAX_ENHANCER_POPULATION = 0;
-const MAX_HARVESTER_POPULATION = 10;
+var MAX_ENGINEER_POPULATON = 3;
+var MAX_HARVESTER_POPULATION = 0;
 
 const MIN_UPGRADERS = 1;
 const MAX_UPGRADERS = 3;
@@ -66,12 +64,16 @@ for(var source in sources)
         if(terrain[tile]!="wall")
         {
             nodes[source][4]++;
+            MAX_HARVESTER_POPULATION++;
         }
     }
 
     nodes[source][4] += Math.floor(Game.spawns["Nexus"].pos.getRangeTo(nodes[source][1], nodes[source][2])/10);
+    MAX_HARVESTER_POPULATION += Math.floor(Game.spawns["Nexus"].pos.getRangeTo(nodes[source][1], nodes[source][2])/10);
 
 }
+
+
 
 var tasks = [];
 
@@ -97,7 +99,7 @@ for(var name in Game.creeps)
     }
 }
 
-var StructuresToBuild = Game.spawns['Nexus'].room.find(FIND_MY_CONSTRUCTION_SITES); //build
+var StructuresToBuild = Game.spawns['Nexus'].room.find(FIND_MY_CONSTRUCTION_SITES); //repair
 for (var structure in StructuresToBuild)
 {
     tasks[1].push(StructuresToBuild[structure]["id"]);
@@ -175,14 +177,12 @@ module.exports.loop = function () {
 
   var creeps = [];
   var engineers = [];
-  var enhancers = [];
   var harvesters = [];
 
 
 
   creeps = _.filter(Game.creeps);
   engineers = _.filter(Game.creeps, {memory:  {role: 'engineer'}});
-  enhancers = _.filter(Game.creeps, {memory:  {role: 'enhancer'}});
   harvesters = _.filter(Game.creeps, {memory:  {role: 'harvester'}});
 
 
@@ -225,28 +225,7 @@ module.exports.loop = function () {
   }
   else if(_.size(harvesters) >= MAX_HARVESTER_POPULATION || fleeingcreeps == true)
   {
-      if(_.size(enhancers) < MAX_ENHANCER_POPULATION)
-      {
-          var prefix = 'enhancer-';
-          var suffix = (_.size(enhancers) + 1);
-          var name;
-          while(true)
-          {
-              name = prefix.concat(suffix);
-              if (Game.creeps[name] != undefined)
-              {
-                  suffix += 1;
-                  continue;
-              }
-              else
-              {
-                  break;
-              }
-          }
-          Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'enhancer', status: 'collecting'}});
-      }
-      else if(_.size(enhancers) >= MAX_ENHANCER_POPULATION)
-      {
+
           if(_.size(engineers) < MAX_ENGINEER_POPULATON)
           {
               var prefix = 'engineer-';
@@ -265,9 +244,8 @@ module.exports.loop = function () {
                       break;
                   }
               }
-              Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'engineer', status: 'collecting', assignedstructure: undefined, assignedfunction: undefined, tasklist: tasks}});
+              Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'engineer', status: 'collecting', assignedstructure: undefined, assignedtask: undefined, tasklist: tasks}});
           }
-      }
   }
 
   for(var name in Game.creeps) {
@@ -275,15 +253,12 @@ module.exports.loop = function () {
         if(creep.memory.role == 'harvester') {
             role_Harvester.run(creep, nodes);
         }
-        if(creep.memory.role == 'enhancer') {
-            role_Enhancer.run(creep);
-        }
         if(creep.memory.role == 'engineer') {
             role_Engineer.run(creep);
         }
     }
 
-
+    //console.log(MAX_HARVESTER_POPULATION);
     //console.log("Nodes: " + nodes);
     console.log("Upgrade: " + tasks[0]);
     console.log("Build: " + tasks[1]);
