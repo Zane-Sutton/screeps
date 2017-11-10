@@ -1,8 +1,5 @@
 module.exports = {
   run: function(creep) {
-
-
-
         /*var priority = []
         priority[0] = "Spawn";
         priority[1] = "Terminal";
@@ -19,17 +16,12 @@ module.exports = {
         priority[12] = "Spawn";
         priority[13] = "Spawn";
         priority[14] = "Spawn";*/
-
-        //console.log(creep.name + " is now assigned to build " + creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES));
-
         if (Game.getObjectById(creep.memory.assignedstructure) == undefined)
         {
             creep.memory.assignedstructure = undefined;
         }
-
         if (creep.memory.assignedstructure == undefined)
         {
-
             //Primary - Repair Buildings
             var structuresToRepair = creep.room.find(FIND_MY_STRUCTURES);
             for(var structureToRepair in structuresToRepair)
@@ -68,7 +60,6 @@ module.exports = {
             creep.memory.assignedtask = "upgrade";
             creep.memory.assignedstructure = Game.spawns['Nexus'].room.controller.id;
         }
-
         if (creep.memory.assignedstructure != undefined)
         {
               if (creep.memory.status == 'collecting')
@@ -76,8 +67,6 @@ module.exports = {
                   if(creep.carry.energy < creep.carryCapacity)
                   {
                       var structures = creep.room.find(FIND_MY_STRUCTURES);
-
-
                       for(var structure in structures)
                       {
                           if(structures[structure].structureType == STRUCTURE_STORAGE && structures[structure].energy >= creep.carryCapacity)
@@ -132,8 +121,6 @@ module.exports = {
                       creep.memory.status = 'collecting'
                   }
               }
-
         }
-
     }
 };
