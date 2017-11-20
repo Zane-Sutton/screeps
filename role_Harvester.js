@@ -39,18 +39,12 @@ module.exports =
             {
                 if(creep.harvest(sources) == ERR_NOT_IN_RANGE)
                 {
-                    //creep.say("🙂");
                     creep.moveTo(sources);
-                }
-                else
-                {
-                    //creep.say("😊");
                 }
             }
             else
             {
                 var structures = creep.room.find(FIND_MY_STRUCTURES);
-                //console.log(structures);
 
                 for(var structure in structures)
                 {

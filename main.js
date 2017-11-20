@@ -2,10 +2,11 @@
 var role_Engineer = require('role_Engineer');
 var role_Harvester = require('role_Harvester');
 //Combat Creeps
-var role_Vidar = require('role_Vidar'); //Melee
-var role_Artemis = require('role_Artemis'); //Ranged
-var role_Mystic = require('role_Mystic'); //Healer
-var role_Exarch = require('role_Exarch'); //Elite
+var role_Myrmidon = require('role_Myrmidon'); //Melee
+var role_Toxotes = require('role_Toxotes'); //Ranged
+var role_Hoplite = require('role_Hoplite'); //Elite Melee
+var role_Nymph = require('role_Nymph'); //Healer
+var role_Sovereign = require('role_Sovereign'); //Squad Leader
 //Population Controls
 var MAX_ENGINEER_POPULATON = 3;
 var MAX_HARVESTER_POPULATION = 0;
@@ -107,7 +108,7 @@ for(var task in tasks[1])
             {
                 if(Game.getObjectById(creep.memory.assignedstructure["id"]) == tasks[1][task].id)
                 {
-                    //tasks[1][task].push(creep.name);
+                    tasks[1][task][1].push(creep.id);
                 }
             }
         }
@@ -132,13 +133,30 @@ for(var task in tasks[2])
             {
                 if(Game.getObjectById(creep.memory.assignedstructure["id"]) == tasks[2][task].id)
                 {
-                    //tasks[2][task].push(creep.name);
+                    tasks[2][task][1].push(creep.id);
                 }
             }
         }
     }
 }
-//set up task tracker array
+for(var task in tasks[0])
+{
+    for(var name in Game.creeps)
+    {
+        var creep = Game.creeps[name];
+        if(creep.memory.role == 'engineer')
+        {
+            if(creep.memory.assignedstructure != undefined)
+            {
+                if(Game.getObjectById(creep.memory.assignedstructure["id"]) == tasks[0][0])
+                {
+                    tasks[0][1];
+                }
+            }
+        }
+    }
+}
+//set up squad tracker array
 var squads = [];
 for(var name in Game.creeps)
 {
@@ -192,25 +210,30 @@ for(var name in Game.creeps)
 
         if(creep.memory.assignedsquad != undefined)
         {
-            if(creep.memory.combatrole == 'vidar')
+            if(creep.memory.combatrole == 'myrmidon')
             {
-              squads[creep.memory.assignedsquad][0][0].push(creep.name);
-              squads[creep.memory.assignedsquad][0][1] += strength;
+                squads[creep.memory.assignedsquad][0][0].push(creep.name);
+                squads[creep.memory.assignedsquad][0][1] += strength;
             }
-            else if(creep.memory.combatrole == 'artemis')
+            else if(creep.memory.combatrole == 'toxotes')
             {
-              squads[creep.memory.assignedsquad][1][0].push(creep.name);
-              squads[creep.memory.assignedsquad][1][1] += strength;
+                squads[creep.memory.assignedsquad][1][0].push(creep.name);
+                squads[creep.memory.assignedsquad][1][1] += strength;
             }
-            else if(creep.memory.combatrole == 'mystic')
+            else if(creep.memory.combatrole == 'hoplite')
             {
-              squads[creep.memory.assignedsquad][2][0].push(creep.name);
-              squads[creep.memory.assignedsquad][2[1] += strength;
+                squads[creep.memory.assignedsquad][2][0].push(creep.name);
+                squads[creep.memory.assignedsquad][2][1] += strength;
             }
-            else if(creep.memory.combatrole == 'exarch')
+            else if(creep.memory.combatrole == 'sovereign')
             {
-              squads[creep.memory.assignedsquad][3][0].push(creep.name);
-              squads[creep.memory.assignedsquad][3][1] += strength;
+                squads[creep.memory.assignedsquad][3][0].push(creep.name);
+                squads[creep.memory.assignedsquad][3][1] += strength;
+            }
+            else if(creep.memory.combatrole == 'nymph')
+            {
+                squads[creep.memory.assignedsquad][4][0].push(creep.name);
+                squads[creep.memory.assignedsquad][4][1] += strength;
             }
         }
     }
@@ -302,21 +325,25 @@ module.exports.loop = function ()
         }
         if(creep.memory.role == 'combat')
         {
-            if(creep.memory.combatrole == 'vidar')
+            if(creep.memory.combatrole == 'myrmidon')
             {
-                role_Vidar.run(creep);
+                role_Myrmidon.run(creep);
             }
-            if(creep.memory.combatrole == 'artemis')
+            if(creep.memory.combatrole == 'toxotes')
             {
-                role_Artemis.run(creep);
+                role_Toxotes.run(creep);
             }
-            if(creep.memory.combatrole == 'mystic')
+            if(creep.memory.combatrole == 'hoplite')
             {
-                role_Mystic.run(creep);
+                role_Hoplite.run(creep);
             }
-            if(creep.memory.combatrole == 'exarch')
+            if(creep.memory.combatrole == 'sovereign')
             {
-                role_Exarch.run(creep);
+                role_Sovereign.run(creep);
+            }
+            if(creep.memory.combatrole == 'nymph')
+            {
+                role_Nymph.run(creep);
             }
         }
     }

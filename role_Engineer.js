@@ -32,7 +32,7 @@ module.exports = {
                     {
                         if(tasks[2][task][1] == undefined)
                         {
-                            tasks[2][task][1].push(creep.id);
+                            //tasks[2][task][1].push(creep.id);
                             creep.memory.assignedtask = "repair";
                             creep.memory.assignedstructure = creep.room.getObjectById(structuresToRepair[structureToRepair].id);
                             break;
@@ -48,7 +48,7 @@ module.exports = {
                 {
                     if(tasks[1][task][1] == undefined)
                     {
-                        tasks[1][task][1].push(creep.id);
+                        //tasks[1][task][1].push(creep.id);
                         creep.memory.assignedtask = "build";
                         creep.memory.assignedstructure = creep.room.getObjectById(structuresToRepair[structureToRepair].id);
                         break;
@@ -56,7 +56,7 @@ module.exports = {
                 }
             }
             //Tertiary - Upgrade Structures
-            tasks[0][1].push(creep.id);
+            //tasks[0][1].push(creep.id);
             creep.memory.assignedtask = "upgrade";
             creep.memory.assignedstructure = Game.spawns['Nexus'].room.controller.id;
         }
