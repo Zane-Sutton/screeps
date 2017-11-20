@@ -11,9 +11,9 @@ var MAX_ENGINEER_POPULATON = 3;
 var MAX_HARVESTER_POPULATION = 0;
 
 const MINIMUM_UPGRADER_THRESHOLD = 1;
-const OPTIMAL_BUILDER_THRESHOLD_FRACTION =
-const OPTIMAL_REPAIRER_THRESHOLD_FRACTION =
-const OPTIMAL_UPGRADER_THRESHOLD_FRACTION = (OPTIMAL_BUILDER_THRESHOLD_FRACTION + OPTIMAL_REPAIRER_THRESHOLD_FRACTION)/2;
+const OPTIMAL_BUILDER_THRESHOLD_FRACTION = 0.5;
+const OPTIMAL_REPAIRER_THRESHOLD_FRACTION = 0.5;
+const OPTIMAL_UPGRADER_THRESHOLD_FRACTION = math.round(OPTIMAL_BUILDER_THRESHOLD_FRACTION + OPTIMAL_REPAIRER_THRESHOLD_FRACTION)/2;
 
 //Set up node tracker array
 var sources = [];
@@ -148,31 +148,69 @@ for(var name in Game.creeps)
         if(creep.memory.assignedsquad != undefined)
         {
             squads[creep.memory.assignedsquad] = [];
+            squads[creep.memory.assignedsquad][0] = [];
+            squads[creep.memory.assignedsquad][1] = [];
+            squads[creep.memory.assignedsquad][2] = [];
+            squads[creep.memory.assignedsquad][3] = [];
         }
     }
 }
 for(var name in Game.creeps)
 {
     var creep = Game.creeps[name];
+
     if(creep.memory.role == 'combat')
     {
+        var body = creep.body;
+        var strength = 0;
+
+        for(var part in body)
+        {
+            if(body[part][type] == MOVE)
+            {
+                strength += 10
+            }
+            if(body[part][type] == ATTACK)
+            {
+                strength += 20
+            }
+            if(body[part][type] == RANGED_ATTACK)
+            {
+                strength += 30
+            }
+            if(body[part][type] == HEAL)
+            {
+                strength += 30
+            }
+            if(body[part][type] == TOUGH)
+            {
+                strength += 10
+            }
+            strength += (body[part][hits] / 10)
+        }
+
+
         if(creep.memory.assignedsquad != undefined)
         {
             if(creep.memory.combatrole == 'vidar')
             {
-              squads[creep.memory.assignedsquad][0].push(creep.name);
+              squads[creep.memory.assignedsquad][0][0].push(creep.name);
+              squads[creep.memory.assignedsquad][0][1] += strength;
             }
             else if(creep.memory.combatrole == 'artemis')
             {
-              squads[creep.memory.assignedsquad][1].push(creep.name);
+              squads[creep.memory.assignedsquad][1][0].push(creep.name);
+              squads[creep.memory.assignedsquad][1][1] += strength;
             }
             else if(creep.memory.combatrole == 'mystic')
             {
-              squads[creep.memory.assignedsquad][2].push(creep.name);
+              squads[creep.memory.assignedsquad][2][0].push(creep.name);
+              squads[creep.memory.assignedsquad][2[1] += strength;
             }
             else if(creep.memory.combatrole == 'exarch')
             {
-              squads[creep.memory.assignedsquad][3].push(creep.name);
+              squads[creep.memory.assignedsquad][3][0].push(creep.name);
+              squads[creep.memory.assignedsquad][3][1] += strength;
             }
         }
     }
@@ -244,7 +282,12 @@ module.exports.loop = function ()
                 }
             }
             Game.spawns['Nexus'].spawnCreep( [WORK, CARRY, MOVE, MOVE] , name  , {memory: {role: 'engineer', status: 'collecting', assignedstructure: undefined, assignedtask: undefined, tasklist: tasks}});
-        }    }
+        }
+        //else if(_.size(engineers) >= MAX_ENGINEER_POPULATON)
+        //{
+        //
+        //}
+    }
 
     for(var name in Game.creeps)
     {
