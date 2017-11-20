@@ -1,21 +1,9 @@
-module.exports = {
-  run: function(creep) {
-        /*var priority = []
-        priority[0] = "Spawn";
-        priority[1] = "Terminal";
-        priority[2] = "Spawn";
-        priority[3] = "Spawn";
-        priority[4] = "Spawn";
-        priority[5] = "Spawn";
-        priority[6] = "Spawn";
-        priority[7] = "Spawn";
-        priority[8] = "Spawn";
-        priority[9] = "Spawn";
-        priority[10] = "Spawn";
-        priority[11] = "Spawn";
-        priority[12] = "Spawn";
-        priority[13] = "Spawn";
-        priority[14] = "Spawn";*/
+/* Engineers are responsible for the construction and repair of structures and upgrading of the controller */
+
+module.exports =
+{
+  run: function(creep)
+  {
         if (Game.getObjectById(creep.memory.assignedstructure) == undefined)
         {
             creep.memory.assignedstructure = undefined;

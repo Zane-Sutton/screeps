@@ -5,6 +5,7 @@ var role_Harvester = require('role_Harvester');
 var role_Myrmidon = require('role_Myrmidon'); //Melee
 var role_Toxotes = require('role_Toxotes'); //Ranged
 var role_Hoplite = require('role_Hoplite'); //Elite Melee
+var role_Helepolis = require('role_Helepolis'); //Elite Melee
 var role_Nymph = require('role_Nymph'); //Healer
 var role_Sovereign = require('role_Sovereign'); //Squad Leader
 //Population Controls
@@ -225,15 +226,20 @@ for(var name in Game.creeps)
                 squads[creep.memory.assignedsquad][2][0].push(creep.name);
                 squads[creep.memory.assignedsquad][2][1] += strength;
             }
-            else if(creep.memory.combatrole == 'sovereign')
+            else if(creep.memory.combatrole == 'helepolis')
             {
                 squads[creep.memory.assignedsquad][3][0].push(creep.name);
                 squads[creep.memory.assignedsquad][3][1] += strength;
             }
-            else if(creep.memory.combatrole == 'nymph')
+            else if(creep.memory.combatrole == 'sovereign')
             {
                 squads[creep.memory.assignedsquad][4][0].push(creep.name);
                 squads[creep.memory.assignedsquad][4][1] += strength;
+            }
+            else if(creep.memory.combatrole == 'nymph')
+            {
+                squads[creep.memory.assignedsquad][5][0].push(creep.name);
+                squads[creep.memory.assignedsquad][5][1] += strength;
             }
         }
     }
@@ -334,6 +340,10 @@ module.exports.loop = function ()
                 role_Toxotes.run(creep);
             }
             if(creep.memory.combatrole == 'hoplite')
+            {
+                role_Hoplite.run(creep);
+            }
+            if(creep.memory.combatrole == 'helepolis')
             {
                 role_Hoplite.run(creep);
             }

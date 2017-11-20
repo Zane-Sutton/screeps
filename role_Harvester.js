@@ -1,3 +1,5 @@
+/* Harvesters are responsible for the operation of the entire economy. They collect and haul energy and minerals from deposits to storage areas for engineers to use. */
+
 module.exports =
 {
     run: function(creep, nodes)
