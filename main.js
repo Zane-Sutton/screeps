@@ -1,6 +1,7 @@
   //Civic Creeps
 var role_Engineer = require('role_Engineer');
 var role_Harvester = require('role_Harvester');
+var role_Settler = require('role_Settler');
 //Combat Creeps
 var role_Myrmidon = require('role_Myrmidon'); //Melee
 var role_Toxotes = require('role_Toxotes'); //Ranged
@@ -16,6 +17,107 @@ const MINIMUM_UPGRADER_THRESHOLD = 1;
 const OPTIMAL_BUILDER_THRESHOLD_FRACTION = 0.5;
 const OPTIMAL_REPAIRER_THRESHOLD_FRACTION = 0.5;
 const OPTIMAL_UPGRADER_THRESHOLD_FRACTION = math.round(OPTIMAL_BUILDER_THRESHOLD_FRACTION + OPTIMAL_REPAIRER_THRESHOLD_FRACTION)/2;
+
+const ENGINEER_MOVE_PART_FRACTION = 0.34;
+const ENGINERR_CARRY_PART_FRACTION = 0.33;
+const ENGINEER_WORK_PART_FRACTION = 0.33;
+const ENGINEER_MAX_PART_COUNT = 50;
+
+const HARVESTER_MOVE_PART_FRACTION = 0.34;
+const HARVESTER_CARRY_PART_FRACTION = 0.33;
+const HARVESTER_WORK_PART_FRACTION = 0.33;
+const HARVESTER_MAX_PART_COUNT = 50;
+
+const SETTLER_MOVE_PART_FRACTION = 0.5;
+const SETTLER_CLAIM_PART_FRACTION = 0.5;
+const SETTLER_MAX_PART_COUNT = 50;
+
+//squads are comprised of a range of basic units lead by a sovereign and complemented by up to a certain number of healers (nymphs). These numbers differ from unit to unit.
+
+const MINIMUM_SOVEREIGN_COUNT = 1;
+const MAXIMUM_SOVEREIGN_COUNT = 1;
+
+const MINIMUM_MYRMIDON_SQUAD_SIZE = 5; //Must reach at least this size before squad becomes operational
+const MAXIMUM_MYRMIDON_SQUAD_SIZE = 25; //Size of squad can reach a maximum of this size with new recruits
+const OPTIMAL_MYRMIDON_NYMPH_COUNT = 5; //continully accept nymphs into the squad until it is at this number
+
+const MINIMUM_TOXOTES_SQUAD_SIZE = 5;
+const MAXIMUM_TOXOTES_SQUAD_SIZE = 20;
+const OPTIMAL_TOXOTES_NYMPH_COUNT = 4;
+
+const MINIMUM_HOPLITE_SQUAD_SIZE = 5;
+const MAXIMUM_HOPLITE_SQUAD_SIZE = 20;
+const OPTIMAL_HOPLITE_NYMPH_COUNT = 5;
+
+const MINIMUM_HELEPOLIS_SQUAD_SIZE = 5;
+const MAXIMUM_HELEPOLIS_SQUAD_SIZE = 15;
+const OPTIMAL_HELEPOLIS_NYMPH_COUNT = 3;
+
+const SOVEREIGN_MOVE_PART_FRACTION = 0.5;
+const SOVEREIGN_TOUGH_PART_FRACTION = 0.5;
+const SOVEREIGN_MAX_PART_COUNT = 50;
+
+const NYMPH_MOVE_PART_FRACTION = 0.4;
+const NYMPH_TOUGH_PART_FRACTION = 0.2;
+const NYMPH_HEAL_PART_FRACTION = 0.4;
+const NYMPH_MAX_PART_COUNT = 50;
+
+const MYRMIDON_MOVE_PART_FRACTION = 0.5;
+const MYRMIDON_TOUGH_PART_FRACTION = 0.2;
+const MYRMIDON_ATTACK_PART_FRACTION = 0.3;
+const MYRMIDON_MAX_PART_COUNT = 50;
+
+const TOXOTES_MOVE_PART_FRACTION = 0.5;
+const TOXOTES_TOUGH_PART_FRACTION = 0.15;
+const TOXOTES_RANGED_ATTACK_PART_FRACTION = 0.35;
+const TOXOTES_MAX_PART_COUNT = 50;
+
+const HOPLITE_MOVE_PART_FRACTION = 0.25;
+const HOPLITE_TOUGH_PART_FRACTION = 0.4;
+const HOPLITE_ATTACK_PART_FRACTION = 0.35;
+const HOPLITE_MAX_PART_COUNT = 50;
+
+const HELEPOLIS_MOVE_PART_FRACTION = 0.2;
+const HELEPOLIS_TOUGH_PART_FRACTION = 0.3;
+const HELEPOLIS_RANGED_ATTACK_PART_FRACTION = 0.5;
+const HELEPOLIS_MAX_PART_COUNT = 50;
+
+//Required tech level of units. tech level is the current measurement of technological and economic progress of the base in the current room.
+// 0 = Dormant (Basic resource collection and construction)
+// 1 = Awakened (Boom Economy)
+// 2 = Activated (building intermediate strucutures and construct rudimentary defense forces)
+// 3 = Engaged (Focus on upgrading controller and Build extensive fortification)
+// 4 = Restored
+// 5 = Enhanced
+// 6 = Empowered (Build invasion forces and settlers, build advanced structures, mine advanced resources)
+// 7 = Enlightened (Attack and conquer nearby rooms)
+// 8 = Transcended (Obtain power units)
+
+const ENGINEER_TECH_LEVEL = 0;
+const HARVESTER_TECH_LEVEL = 0;
+const SOVEREIGN_TECH_LEVEL = 2;
+const MYRMIDON_TECH_LEVEL = 2;
+const TOXOTES_TECH_LEVEL = 2;
+const NYMPH_TECH_LEVEL = 5;
+const HOPLITE_TECH_LEVEL = 5;
+const HELEPOLIS_TECH_LEVEL = 5;
+const SETTLER_TECH_LEVEL = 6;
+
+const STRCUTURE_ROAD_TECH_LEVEL = 1;
+const STRUCTURE_CONTAINER_TECH_LEVEL = 2;
+const STRUCTURE_EXTENSION_TECH_LEVEL = 2;
+const STRUCTURE_WALL_TECH_LEVEL = 3;
+const STRUCTURE_RAMPART_TECH_LEVEL = 3;
+const STRUCTURE_TOWER_TECH_LEVEL = 3;
+const STRUCTURE_STORAGE_TECH_LEVEL = 4;
+const STRUCTURE_LINK_TECH_LEVEL = 5;
+const STRUCTURE_EXTRACTOR_TECH_LEVEL = 6;
+const STRUCTURE_LAB_TECH_LEVEL = 6;
+const STRUCTURE_TERMINAL_TECH_LEVEL = 6;
+const STRUCTURE_SPAWN_TECH_LEVEL = 7;
+const STRUCTURE_OBSERVER_TECH_LEVEL = 8;
+const STRUCTURE_POWER_SPAWN_TECH_LEVEL = 8;
+const STRUCTURE_NUKER_TECH_LEVEL = 8;
 
 //Set up node tracker array
 var sources = [];
@@ -328,6 +430,10 @@ module.exports.loop = function ()
         if(creep.memory.role == 'engineer')
         {
             role_Engineer.run(creep);
+        }
+        if(creep.memory.role == 'settler')
+        {
+            role_Settler.run(creep);
         }
         if(creep.memory.role == 'combat')
         {

@@ -8,11 +8,21 @@ module.exports =
     {
         if(creep.memory.assignedsquad == undefined)
         {
-
+            for(var name in Game.creeps)
+            {
+                var newcreep = Game.creeps[name];
+                if(newcreep.memory.role == 'combat')
+                {
+                    if(newcreep.memory.assignedsquad == undefined)
+                    {
+                        newcreep.memory.assignedsquad = creep.memory.assignedsquad;
+                    }
+                }
+            }
         }
         else if (creep.memory.assignedsquad != undefined)
         {
-          
+
         }
     }
 };
